@@ -7,22 +7,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private val TAG = "LifeCycleLog"
 
+    private val viewModel: AppViewModel by activityViewModels()
     private lateinit var nameTextView: TextView
     private lateinit var usernameTextView: TextView
     private lateinit var phoneTextView: TextView
 
-    private fun loadProfileData() {
-        nameTextView.text = ProfileData.user.name //
-
-        usernameTextView.text = "@${ProfileData.user.username}" //
-
-        phoneTextView.text = ProfileData.user.phoneNumber //
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,18 +42,16 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             findNavController().navigate(R.id.editProfileFragment)
         }
 
-        loadProfileData()
+        viewModel.userProfile.observe(viewLifecycleOwner) { profile ->
+            nameTextView.text = profile.name
+            usernameTextView.text = "@${profile.username}"
+            phoneTextView.text = profile.phoneNumber
+        }
     }
 
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "ProfileFragment: onStart() – Фрагмент виден")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "ProfileFragment: onResume() – Фрагмент активен")
-        loadProfileData()
     }
 
     override fun onPause() {

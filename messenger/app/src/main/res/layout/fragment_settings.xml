@@ -37,15 +37,17 @@
         android:id="@+id/iv_theme_switcher"
         android:layout_width="50dp"
         android:layout_height="50dp"
+
+        android:src="@drawable/ic_sun" android:contentDescription="@string/setting_theme_label"
+
         android:padding="10dp"
         android:clickable="true"
         android:focusable="true"
         android:background="@drawable/theme_button_background"
         android:layout_marginEnd="25dp"
 
-        app:tint="?android:attr/colorBackground"
         app:layout_constraintBottom_toBottomOf="@id/tv_theme_label"
         app:layout_constraintTop_toTopOf="@id/tv_theme_label"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

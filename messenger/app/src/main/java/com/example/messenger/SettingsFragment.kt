@@ -1,58 +1,61 @@
 package com.example.messenger
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
-import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private val TAG = "LifeCycleLog"
     private lateinit var themeSwitcherImageView: ImageView
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.d(TAG, "SettingsFragment: onAttach() – Присоединение к Activity")
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "SettingsFragment: onCreate()")
-    }
+    private val viewModel: AppViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "SettingsFragment: onViewCreated() – Разметка создана")
 
         themeSwitcherImageView = view.findViewById(R.id.iv_theme_switcher)
-        updateThemeSwitcherIcon()
+
+        viewModel.isDarkMode.observe(viewLifecycleOwner) { isDark ->
+            val iconRes = if (isDark) R.drawable.ic_moon else R.drawable.ic_sun
+            themeSwitcherImageView.setImageResource(iconRes)
+
+            val typedValue = TypedValue()
+            val theme = requireContext().theme
+            theme.resolveAttribute(com.google.android.material.R.attr.colorOnBackground, typedValue, true)
+            val color = typedValue.data
+
+            themeSwitcherImageView.setColorFilter(color)
+        }
+
         themeSwitcherImageView.setOnClickListener {
             toggleTheme()
         }
     }
 
     private fun toggleTheme() {
-        val currentNightMode = AppCompatDelegate.getDefaultNightMode()
-        val newNightMode = if (currentNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            AppCompatDelegate.MODE_NIGHT_NO
-        } else {
-            AppCompatDelegate.MODE_NIGHT_YES
+        val currentIsDark = viewModel.isDarkMode.value ?: false
+        val newIsDark = !currentIsDark
+
+        viewModel.setDarkMode(newIsDark)
+
+        val mode = if (newIsDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+
+        if (AppCompatDelegate.getDefaultNightMode() != mode) {
+            AppCompatDelegate.setDefaultNightMode(mode)
         }
-        AppCompatDelegate.setDefaultNightMode(newNightMode)
-        activity?.recreate()
     }
 
-    private fun updateThemeSwitcherIcon() {
-        val isNightMode = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-        if (isNightMode) {
-            themeSwitcherImageView.setImageResource(R.drawable.ic_sun)
-        } else {
-            themeSwitcherImageView.setImageResource(R.drawable.ic_moon)
-        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "SettingsFragment: onCreate()")
     }
 
     override fun onStart() {

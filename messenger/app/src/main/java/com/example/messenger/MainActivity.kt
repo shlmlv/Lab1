@@ -3,33 +3,37 @@ package com.example.messenger
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.activity.viewModels
 
 class MainActivity : AppCompatActivity() {
 
-    // Тег для отслеживания жизненного цикла в логе
     private val TAG = "LifeCycleLog"
+    private val viewModel: AppViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val isDark = viewModel.isDarkMode.value ?: false
+        val initialMode = if (isDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        if (AppCompatDelegate.getDefaultNightMode() != initialMode) {
+            AppCompatDelegate.setDefaultNightMode(initialMode)
+        }
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Log.d(TAG, "MainActivity: onCreate()") // Логирование создания компонента
+        Log.d(TAG, "MainActivity: onCreate()")
 
-        // 1. Получаем NavController из NavHostFragment
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-        // 2. Находим BottomNavigationView
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
 
-        // 3. Связываем BottomNavigationView с NavController
         bottomNav.setupWithNavController(navController)
     }
 
-    // Дополнительное логирование для отслеживания жизненного цикла
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "MainActivity: onStart()")

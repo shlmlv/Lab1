@@ -7,10 +7,13 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.activityViewModels
 
 class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
 
     private val TAG = "LifeCycleLog"
+
+    private val viewModel: AppViewModel by activityViewModels()
 
     private lateinit var nameEditText: EditText
     private lateinit var usernameEditText: EditText
@@ -27,9 +30,12 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
         val backButton = view.findViewById<View>(R.id.ll_back_button)
         saveButton = view.findViewById(R.id.tv_save_changes_button)
 
-        nameEditText.setText(ProfileData.user.name)
-        usernameEditText.setText(ProfileData.user.username)
-        phoneEditText.setText(ProfileData.user.phoneNumber)
+        val currentProfile = viewModel.userProfile.value
+        currentProfile?.let {
+            nameEditText.setText(it.name)
+            usernameEditText.setText(it.username)
+            phoneEditText.setText(it.phoneNumber)
+        }
 
         backButton.setOnClickListener {
             findNavController().navigateUp()
@@ -47,9 +53,7 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
         val newUsername = usernameEditText.text.toString()
         val newPhoneNumber = phoneEditText.text.toString()
 
-        ProfileData.user.name = newName
-        ProfileData.user.username = newUsername
-        ProfileData.user.phoneNumber = newPhoneNumber
+        viewModel.saveProfile(newName, newUsername, newPhoneNumber)
 
         findNavController().navigateUp()
     }
